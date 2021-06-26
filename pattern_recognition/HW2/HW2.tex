@@ -1,0 +1,145 @@
+%!TEX program = xelatex
+\documentclass[a4paper,UTF8]{article}
+\usepackage{ctex}
+\usepackage[margin=1.25in]{geometry}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{mdframed}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\newmdtheoremenv{thm-box}{Theorem}
+\newmdtheoremenv{prop-box}{Proposition}
+\newmdtheoremenv{def-box}{定义}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{
+	numbers=left,
+	numberstyle= \tiny,
+	keywordstyle= \color{ blue!70},
+	commentstyle= \color{red!50!green!50!blue!50},
+	frame=shadowbox, % 阴影效果
+	rulesepcolor= \color{ red!20!green!20!blue!20} ,
+	escapeinside=``, % 英文分号中可写入中文
+	xleftmargin=2em,xrightmargin=2em, aboveskip=1em,
+	framexleftmargin=2em
+}
+
+\usepackage{booktabs}
+
+\setlength{\evensidemargin}{.25in}
+\setlength{\textwidth}{6in}
+\setlength{\topmargin}{-0.5in}
+\setlength{\topmargin}{-0.5in}
+% \setlength{\textheight}{9.5in}
+%%%%%%%%%%%%%%%%%%此处用于设置页眉页脚%%%%%%%%%%%%%%%%%%
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{layout}
+\footskip = 12pt
+\pagestyle{fancy}                    % 设置页眉
+\lhead{2021年春季}
+\chead{模式识别}
+% \rhead{第\thepage/\pageref{LastPage}页}
+\rhead{作业二}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{1pt}  			%页眉线宽，设为0可以去页眉线
+\setlength{\skip\footins}{0.5cm}    			%脚注与正文的距离
+\renewcommand{\footrulewidth}{0pt}  			%页脚线宽，设为0可以去页脚线
+
+\makeatletter 									%设置双线页眉
+\def\headrule{{\if@fancyplain\let\headrulewidth\plainheadrulewidth\fi%
+\hrule\@height 1.0pt \@width\headwidth\vskip1pt	%上面线为1pt粗
+\hrule\@height 0.5pt\@width\headwidth  			%下面0.5pt粗
+\vskip-2\headrulewidth\vskip-1pt}      			%两条线的距离1pt
+ \vspace{6mm}}     								%双线与下面正文之间的垂直间距
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\numberwithin{equation}{section}
+%\usepackage[thmmarks, amsmath, thref]{ntheorem}
+\newtheorem{theorem}{Theorem}
+\newtheorem*{definition}{Definition}
+\newtheorem*{solution}{Solution}
+\newtheorem*{prove}{Proof}
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+
+\usepackage{multirow}
+
+%--
+
+%--
+\begin{document}
+\title{模式识别\\
+作业二}
+\author{181220076, 周韧哲, 本科，人工智能学院，人工智能学院选课}
+\maketitle
+
+\section*{Problem 1}
+\begin{enumerate}[(a)]
+	\item $\|x_j-\mu_i\|^2$代表$x_j$到第$i$组的代表$u_i$的距离，当$\gamma_{ij}=0$时，这一项为$0$，说明$\sum_{i=1}^{K}\gamma_{ij}\|x_j-\mu_i\|^2$就是被分到了第$k$组的$x_j$到与其类代表的距离。从而，$\sum_{j=1}^{M}\sum_{i=1}^{K}\gamma_{ij}\|x_j-\mu_i\|^2$就代表所有的样本到其对应类代表的距离和。对其最小化也就是让相同组的样本到其类代表的距离和最小，即属于相同组的样本彼此相似，距离最小。所以该式形式化了K均值目标。
+	\item 设第$k$次迭代后为$\gamma_{ij}^k,\mu_i^k$。
+	\begin{enumerate}[i.]
+		\item 固定$u_i$后，$\gamma_{ij}^{k+1} = \arg\min_{\gamma_{ij}^{k}} \sum_{i=1}^{K}\sum_{j=1}^{M}\gamma_{ij}^k\|x_j-\mu_i^k\|^2$。固定$\mu_i$后，上式等价于对于每个$x_j$，$\gamma_{ij}^{k+1} = \arg\min_{\gamma_{ij}^{k}} \sum_{i=1}^{K}\gamma_{ij}^k\|x_j-\mu_i^k\|^2$，即选择距离最小的$\mu_i^k$对应类别作为$x_j$的类别。所以
+		$$\gamma_{ij}^{k+1} = \begin{cases}
+			1,\quad\|x_j-\mu_j^{k}\|^2\leq \|x_j-\mu_{j'}^{k}\|^2,j'=1,2,\cdots,K \\
+			0,\quad\text{otherwise}
+		\end{cases}$$
+		\item 固定$\gamma_{ij}$后，$\mu_i^{k+1} = \arg\min_{\mu_i^{k}} \sum_{i=1}^{K}\sum_{j=1}^{M}\gamma_{ij}^{k+1}\|x_j-\mu_i^k\|^2$。$\sum_{j=1}^{M}\gamma_{ij}^{k+1}\|x_j-\mu_i^k\|^2$就是第$i$类样本到$\mu_i^k$的距离和，因而固定$\gamma_{ij}$后可分别优化每个$\mu_i$：$\mu_i^{k+1}=\arg\min_{\mu_i^{k}} \sum_{j=1}^{M}\gamma_{ij}^{k+1}\|x_j-\mu_i^k\|^2$，由于$f(x)=\|x\|^2$为凸函数，故可求导等于0得到最小值$$u_i^{k+1}=\frac{\sum_{j=1}^{M}\gamma_{ij}^{k+1}x_j}{\sum_{j=1}^{M}\gamma_{ij}^{k+1}}$$
+	\end{enumerate}
+    \item 记目标函数为$J(\gamma,\mu)$，首先证明在Floyd算法中$J(\gamma,\mu)$递减。在$i$步，固定$\mu$后，由于对于每个样本均归类到离其最近的样本中心，即任意$x_j$都有$\|x_j-\mu_j^{k}\|^2\leq \|x_j-\mu_{j'}^{k}\|^2,j'=1,2,\cdots,K$，从而$J_{k+1}'(\gamma,\mu)\leq J_k(\gamma,\mu)$。在$ii$步，固定$\gamma$后，对于每个$\mu_i$，都取了$\sum_{j=1}^{M}\gamma_{ij}^{k+1}\|x_j-\mu_i^k\|^2$的最小值，从而，$J_{k+1}(\gamma,\mu)\leq J_{k+1}'(\gamma,\mu)$。又因为$J(\gamma,\mu)\geq 0$显然成立，从而目标函数单调递减且有界，必定收敛。
+\end{enumerate}
+
+\section*{Problem 2}
+\begin{enumerate}[(a)]
+	\item $\min_\beta\sum_{i=1}^{n}(y_i-x_i^T\beta)^2$
+	\item $\min_\beta(y-X\beta)^T(y-X\beta)$
+	\item 将优化项展开，得到$$\min_\beta y^Ty-y^TX\beta-\beta^TX^Ty+\beta^TX^TX\beta$$
+	      由于中间两项为标量，所以可写为$\min_\beta y^Ty-2\beta^TX^Ty+\beta^TX^TX\beta$，其为二次规划问题，可直接求梯度等于0,得到$X^TX\beta=X^Ty$，假设$X^TX$可逆，所以$\beta^*=(X^TX)^{-1}X^Ty$。
+	\item 不可逆，当$d>n$时$X^TX$为奇异矩阵。
+	\item 该正则项会使得$\beta$是有偏估计。
+	\item $\min_\beta(y-X\beta)^T(y-X\beta)+\lambda\beta^T\beta$，展开得到$$\min_\beta y^Ty-y^TX\beta-\beta^TX^Ty+\beta^T(X^TX+\lambda I)\beta$$
+	      加入了$\lambda I$可使得$X^TX+\lambda I$可逆，故解为$\beta^*=(X^TX+\lambda I)^{-1}X^Ty$
+	 \item 岭回归得到的解中加入了$\lambda I$使得$X^TX+\lambda I$可逆，是普通线性回归的改良版，计算更可靠。
+	 \item $\lambda=0$时就是普通线性回归的解，$\lambda=\infty$时，正则化项的惩罚最大，故解为$\beta=0$。
+	 \item 不可以。如果联合优化的话，因为$\lambda$对应项为非负的，如果限制$\lambda>0$的话，为了最小化目标函数，$\lambda$必然非常小，这样就退化为普通线性回归。如果不限制$\lambda$的话，为了最小化目标函数，$\lambda$会优化成$-\infty$，没有实际意义。所以不可以在训练集上联合优化$\lambda$和$\beta$。
+\end{enumerate}
+\section*{Problem 3}
+\begin{enumerate}[(a)]
+    \item 将$F_\beta$展开得到$$F_\beta=\frac{(1+\beta^2)TP}{(1+\beta^2)TP+\beta^2 FN+FP}$$由于分子分母各项都非负且$(1+\beta^2)TP\leq (1+\beta^2)TP+\beta^2 FN+FP$，所以$0\leq F_\beta\leq 1$，$F_\beta=0$取得条件为$TP=0$，$F_\beta=1$取得条件为$FN=FP=0$。
+    \item $F_\beta$对查全率$r$和查准率$p$求偏导得$$\frac{\partial F_\beta}{\partial r}=\frac{\beta^2p^2}{(\beta^2p+r)^2},\quad\frac{\partial F_\beta}{\partial p}=\frac{r^2}{(\beta^2p+r)^2}$$
+    可计算$\frac{\partial F_\beta}{\partial r}/\frac{\partial F_\beta}{\partial p}=\beta^2\frac{p^2}{r^2}$，容易看出$\beta>1$时，$\beta^2>1$，查全率更重要，$0\leq\beta<1$时，$0\leq\beta^2<1$，查准率更重要。
+\end{enumerate}
+
+\section*{Problem 4}
+\begin{enumerate}[(a)]
+	\item $p(x)=\sum_{y}p(x,y)=\sum_{y}p(x|y)p(y)=(\frac{1}{\sqrt{2\pi}})(e^{-2(x+1)^2}+e^{-2(x-1)^2})$
+	\item $\mathbb{E}[c_{y,f(x)}]=\sum_{x,y}c_{y,f(x)}p(x,y)=\sum_{x}\sum_{y}c_{y,f(x)}p(y|x)p(x)=\sum_{x}p(x)\sum_{y}c_{y,f(x)}p(y|x)$，对于每个$x$，$\sum_{y}c_{y,f(x)}p(y|x)$是独立的，所以只需最小化$\sum_{y}c_{y,f(x)}p(y|x)$。可将其展开：$c_{1,f(x)}p(y=1|x)+c_{2,f(x)}p(y=2|x)=\mathbb{I}[f(x)\neq1]p(y=1|x)+\mathbb{I}[f(x)\neq2]p(y=2|x)$，为了使其最小，只需要比较$p(y=1|x)$与$p(y=2|x)$的大小，即$f(x)=\arg\max_y p(y|x)$，这样能使得上面式子退化为较小的一项。多分类时，此规则仍为最优。代价可写为$\mathbb{I}[f(x)\neq1]p(y=1|x)+\cdots+\mathbb{I}[f(x)\neq C]p(y=C|x)$，同样地$f(x)=\arg\max_y p(y|x)$能使得上式退化为最小的$C-1$项的和，因而是最优的。
+	\item 由贝叶斯公式容易得到$p(y|x)\propto p(x|y)p(y)$，因此最优分类策略为$f(x)=\arg\max_y p(y|x)=\arg\max_y p(x|y)p(y)$，$p(x|y)$和$p(y)$均可由题中条件写出。
+	\item 期望代价可写为$\mathbb{I}[f(x)\neq1]10p(y=1|x)+\mathbb{I}[f(x)\neq2]p(y=2|x)$，所以最优决策$f(x)$为$\max(10p(y=1|x), p(y=2|x)$中对应$y$的取值。
+\end{enumerate}
+
+\section*{Problem 5}
+\begin{enumerate}[(a)]
+	\item 由于$U^TU=I,V^TV=I$，所以$XX^T=U\Sigma V^TV\Sigma^TU^T=U\Sigma\Sigma^TU^T=U\Sigma\Sigma^TU^{-1}$，所以其特征值为$\Sigma\Sigma^T$的对角线元素，设$r=min(m,n)$，则其特征值为$\sigma_1^2,\cdots,\sigma_r^2,0,\cdots,0$，m-r个0，特征向量为$U$的对应列向量。
+    \item 类似于(a)，$X^TX=V\Sigma^TU^TU\Sigma V^T=V\Sigma^T\Sigma V^T=V\Sigma^T\Sigma V^{-1}$，所以其特征值为$\Sigma^T\Sigma$的对角线元素，其特征值为$\sigma_1^2,\cdots,\sigma_r^2,0,\cdots,0$，$n-r$个$0$，特征向量为$V$的对应列向量。
+    \item 有相同的$r$个特征值，其为$\sigma_1,\dots,\sigma_r$的平方。
+    \item $XX^T$与$X^TX$的r个特征值恰好是$X$的$r$个奇异值的平方。
+    \item 我会先计算$XX^T$的特征值，因为这个矩阵维度仅为$2\times 2$，而$X^TX$的特征值就是$XX^T$的特征值再补上$99998$个$0$。
+\end{enumerate}
+
+\section*{Problem 6}
+\begin{enumerate}[(a)]
+    \item 忘记减去平均向量时，第一个特征向量和平均向量之间的corr小于1，较低，减去平均向量后，第一个特征向量和平均向量之间的corr较高，等于1。
+    \item scale变量取值变化时，$e1$会变化，而new\_e1不变，即减去平均向量后，第一个特征向量不随scale变量的变化而变化，正确的特征向量是$$(-0.4158,0.3331,-0.7253,-0.1940,-0.1857,0.1073,0.1481,-0.1735,0.2108,-0.0994)$$。
+\end{enumerate}
+\end{document}
